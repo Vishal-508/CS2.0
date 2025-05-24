@@ -1,0 +1,47 @@
+const theme = {
+  colors: {
+    primary: '#2563eb',
+    primaryLight: '#dbeafe',
+    primaryDark: '#1d4ed8',
+    secondary: '#7c3aed',
+    secondaryLight: '#ede9fe',
+    secondaryDark: '#6d28d9',
+    success: '#16a34a',
+    successLight: '#dcfce7',
+    successDark: '#15803d',
+    danger: '#dc2626',
+    dangerLight: '#fee2e2',
+    dangerDark: '#b91c1c',
+    warning: '#d97706',
+    warningLight: '#fef3c7',
+    warningDark: '#b45309',
+    info: '#0284c7',
+    infoLight: '#e0f2fe',
+    infoDark: '#0369a1',
+    light: '#f8fafc',
+    dark: '#0f172a',
+    text: '#334155',
+    textSecondary: '#64748b',
+    border: '#e2e8f0',
+    white: '#ffffff',
+  },
+  radii: {
+    sm: '0.25rem',
+    md: '0.5rem',
+    lg: '1rem',
+    full: '9999px',
+  },
+  shadows: {
+    sm: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    md: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+  },
+  breakpoints: {
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+  },
+};
+
+export default theme;
