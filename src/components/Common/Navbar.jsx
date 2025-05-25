@@ -29,6 +29,9 @@ const Navbar = () => {
           <NavItem to="/issues">
             <FaClipboardList /> Issues
           </NavItem>
+           {/* <NavItem to="/my-issues">  
+            <FaClipboardList /> My Issues  
+          </NavItem>   */}
           <NavItem to="/map">
             <FaMap /> Map
           </NavItem>

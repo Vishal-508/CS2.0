@@ -6,13 +6,47 @@ export const fetchIssues = createAsyncThunk(
   "issues/fetchIssues",
   async (params, { rejectWithValue }) => {
     try {
-      const response = await api.get(endpoints.ISSUES, { params });
-      return response.data;
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== null)
+      );
+      const response = await api.get(endpoints.ISSUES, { params: cleanParams });
+      return {
+        data: response.data.data, // Access the nested data property
+        page: params.page, // Keep track of requested page
+      };
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
   }
 );
+
+// export const fetchIssues = createAsyncThunk(
+//   "issues/fetchIssues",
+//   async (params, { rejectWithValue }) => {
+//     try {
+//       // Clean up undefined/null parameters
+//       const cleanParams = Object.fromEntries(
+//         Object.entries(params).filter(([_, v]) => v !== undefined && v !== null)
+//       );
+//       const response = await api.get(endpoints.ISSUES, { params: cleanParams });
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+
+// export const fetchIssues = createAsyncThunk(
+//   "issues/fetchIssues",
+//   async (params, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(endpoints.ISSUES, { params });
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
 
 export const fetchUserIssues = createAsyncThunk(
   "issues/fetchUserIssues",
@@ -110,29 +144,29 @@ export const deleteIssue = createAsyncThunk(
   }
 );
 
-export const fetchCategories = createAsyncThunk(
-  "issues/fetchCategories",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.get(endpoints.CATEGORIES);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
+// export const fetchCategories = createAsyncThunk(
+//   "issues/fetchCategories",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(endpoints.CATEGORIES);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
 
-export const fetchStatuses = createAsyncThunk(
-  "issues/fetchStatuses",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.get(endpoints.STATUSES);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
+// export const fetchStatuses = createAsyncThunk(
+//   "issues/fetchStatuses",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(endpoints.STATUSES);
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response.data);
+//     }
+//   }
+// );
 
 const issuesSlice = createSlice({
   name: "issues",
@@ -140,18 +174,26 @@ const issuesSlice = createSlice({
     issues: [],
     userIssues: [],
     currentIssue: null,
-    categories: [],
-    statuses: [],
+    // categories: [],
+    categories: [ // Add hardcoded categories
+    { _id: "Road", name: "Road" },
+    { _id: "Water", name: "Water" },
+    { _id: "Sanitation", name: "Sanitation" },
+    { _id: "Electricity", name: "Electricity" },
+    { _id: "Other", name: "Other" }
+  ],
+    // statuses: [],
     pagination: {
       page: 1,
       limit: 10,
       total: 0,
+      totalPages: 1,
     },
     filters: {
       search: "",
       category: "",
       status: "",
-      sort: "newest",
+      sort: -1,
     },
     loading: false,
     error: null,
@@ -169,30 +211,28 @@ const issuesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMapIssues.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchMapIssues.fulfilled, (state, action) => {
-        state.loading = false;
-        state.issues = action.payload;
-      })
-      .addCase(fetchMapIssues.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-    builder
       .addCase(fetchIssues.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchIssues.fulfilled, (state, action) => {
         state.loading = false;
-        state.issues = action.payload.data;
+        state.issues = action.payload.data.issues; // Access the nested issues array
         state.pagination = {
-          page: action.payload.page,
-          limit: action.payload.limit,
-          total: action.payload.total,
+          page: action.payload.data.page,
+          limit: state.pagination.limit, // Keep the existing limit
+          total: action.payload.data.total,
+          totalPages: Math.ceil(action.payload.total / state.pagination.limit) 
         };
       })
+      //   .addCase(fetchIssues.fulfilled, (state, action) => {
+      //     state.loading = false;
+      //     state.issues = action.payload.data;
+      //     state.pagination = {
+      //       page: action.payload.page,
+      //       limit: action.payload.limit,
+      //       total: action.payload.total,
+      //     };
+      //   })
       .addCase(fetchIssues.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -262,12 +302,23 @@ const issuesSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.categories = action.payload;
+      .addCase(fetchMapIssues.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(fetchStatuses.fulfilled, (state, action) => {
-        state.statuses = action.payload;
+      .addCase(fetchMapIssues.fulfilled, (state, action) => {
+        state.loading = false;
+        state.issues = action.payload;
+      })
+      .addCase(fetchMapIssues.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+    //   .addCase(fetchCategories.fulfilled, (state, action) => {
+    //     state.categories = action.payload;
+    //   })
+    //   .addCase(fetchStatuses.fulfilled, (state, action) => {
+    //     state.statuses = action.payload;
+    //   });
   },
 });
 

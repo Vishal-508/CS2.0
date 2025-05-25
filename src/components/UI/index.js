@@ -10,6 +10,7 @@ import IssueCard from './IssueCard';
 import StatusBadge from './StatusBadge';
 import Logo from './Logo';
 import Form from './Form';
+import OuterContainer from './OuterContainer';
 
 // Export all components
 export {
@@ -23,5 +24,6 @@ export {
   IssueCard,
   StatusBadge,
   Logo,
-  Form
+  Form,
+  OuterContainer
 };

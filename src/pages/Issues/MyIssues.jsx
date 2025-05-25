@@ -17,7 +17,7 @@ const MyIssues = () => {
     dispatch(fetchUserIssues());
   }, [dispatch]);
 
-  if (loading && !userIssues.length) {
+  if (loading ) {
     return <Loading />;
   }
 

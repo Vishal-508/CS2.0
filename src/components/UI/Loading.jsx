@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import OuterContainer from './OuterContainer';
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -23,9 +24,11 @@ const Spinner = styled.div`
 
 const Loading = () => {
 return (
+    <OuterContainer>
 <LoadingContainer>
 <Spinner />
 </LoadingContainer>
+</OuterContainer>
 );
 };
 

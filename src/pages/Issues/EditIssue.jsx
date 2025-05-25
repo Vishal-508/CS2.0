@@ -40,18 +40,18 @@ const EditIssue = () => {
   useEffect(() => {
     if (currentIssue) {
       setFormData({
-        title: currentIssue.title,
-        description: currentIssue.description,
-        category: currentIssue.category?._id || '',
-        location: currentIssue.location,
-        image: null,
+        title: currentIssue.data.title,
+        description: currentIssue.data.description,
+        category: currentIssue.data.category?._id || '',
+        location: currentIssue.data.location,
+        imageUrl: null,
       });
-      if (currentIssue.image) {
-        setImagePreview(`${import.meta.env.VITE_API_URL}/${currentIssue.image}`);
+      if (currentIssue.data.imageUrl) {
+        setImagePreview(`${currentIssue.data.imageUrl}`);
       }
     }
   }, [currentIssue]);
-
+console.log("current iseeu ",currentIssue)
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -111,6 +111,8 @@ const EditIssue = () => {
   if (loading || !currentIssue) {
     return <Loading />;
   }
+
+
 
   return (
     <OuterContainer>

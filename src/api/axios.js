@@ -1,8 +1,8 @@
 import axios from 'axios';
-
+import { toast } from 'react-hot-toast';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+ withCredentials: false,
 });
 
 // Request interceptor
@@ -23,12 +23,28 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const status = error.response?.status;
+
+    if (status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
+    } else if (status === 400) {
+      const message = error.response?.data?.error || 'Bad Request';
+      toast.error(message);
     }
+
     return Promise.reject(error);
   }
 );
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response && error.response.status === 401) {
+//       localStorage.removeItem('token');
+//       window.location.href = '/login';
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;

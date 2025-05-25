@@ -11,21 +11,17 @@ const API_ENDPOINTS = {
   SINGLE_ISSUE: '/api/issues/:id',
 
   // Votes
-  VOTE: '/api/votes/:issueId',
-  CHECK_VOTE: '/api/votes/check/:issueId',
+  VOTE: '/api/vote/issues/:issueId/upvote',
+  CHECK_VOTE: '/api/vote/issues/:issueId/vote-status',
+  DELETE_VOTE:'/api/vote/issues/:issueId/vote',
 
   // Analytics
-  CATEGORY_ANALYTICS: '/api/analytics/categories',
-  SUBMISSION_ANALYTICS: '/api/analytics/submissions',
+  CATEGORY_ANALYTICS: '/api/analytics/category-count',
+  SUBMISSION_ANALYTICS: '/api/analytics/daily-submissions',
   MOST_VOTED_ANALYTICS: '/api/analytics/most-voted',
 
   // Map
-  MAP_ISSUES: '/api/map',
-//   MAP_ISSUES: '/api/map',
-
-  // Additional
-  CATEGORIES: '/api/categories',
-  STATUSES: '/api/statuses',
+  MAP_ISSUES: '/api/map'
 };
 
 export default API_ENDPOINTS;

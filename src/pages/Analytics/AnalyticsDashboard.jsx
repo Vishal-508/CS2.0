@@ -19,6 +19,7 @@ import {
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import styled from 'styled-components';
 import { Card, Loading } from '../../components/UI';
+import { OuterContainer } from '../../components/UI';
 
 // Register ChartJS components
 ChartJS.register(
@@ -53,7 +54,7 @@ const AnalyticsDashboard = () => {
 
   // Prepare data for charts
   const categoryChartData = {
-    labels: categoryData.map(item => item._id),
+ labels: categoryData.map(item => item.category),
     datasets: [
       {
         data: categoryData.map(item => item.count),
@@ -76,7 +77,7 @@ const AnalyticsDashboard = () => {
   };
 
   const submissionChartData = {
-    labels: submissionData.map(item => new Date(item._id).toLocaleDateString()),
+      labels: submissionData.map(item => new Date(item.date).toLocaleDateString()),
     datasets: [
       {
         label: 'Issues Reported',
@@ -90,11 +91,13 @@ const AnalyticsDashboard = () => {
   };
 
   const mostVotedChartData = {
-    labels: mostVotedData.map(item => item._id),
+    labels: mostVotedData.map(item => item.category), 
     datasets: [
       {
         label: 'Most Voted Issues',
-        data: mostVotedData.map(item => item.maxVotes),
+       data: mostVotedData.map(item => 
+          Math.max(...item.topIssues.map(issue => issue.voteCount)) // Get max votes per category
+        ),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
@@ -103,6 +106,7 @@ const AnalyticsDashboard = () => {
   };
 
   return (
+    <OuterContainer>
     <Container>
       <h2>Analytics Dashboard</h2>
       
@@ -138,6 +142,7 @@ const AnalyticsDashboard = () => {
         </ChartCard>
       </ChartsGrid>
     </Container>
+    </OuterContainer>
   );
 };
 

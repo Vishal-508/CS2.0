@@ -17,7 +17,7 @@ import {
   IssueCard,
   Loading 
 } from '../../components/UI/index';
-import { FaSearch, FaPlus, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaFilter, FaTimes } from 'react-icons/fa';
 import OuterContainer from '../../components/UI/OuterContainer';
 
 const IssueList = () => {
@@ -28,9 +28,7 @@ const IssueList = () => {
     loading,
     pagination,
     filters,
-    categories,
   } = useSelector((state) => state.issues);
-
   const [searchTerm, setSearchTerm] = useState(filters.search);
 
   useEffect(() => {
@@ -50,7 +48,19 @@ const IssueList = () => {
   };
 
   const handleFilterChange = (name, value) => {
-    dispatch(setFilters({ [name]: value }));
+    const cleanedValue = value === "" ? undefined : value;
+    dispatch(setFilters({ [name]: cleanedValue }));
+    dispatch(setPagination({ page: 1 }));
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    dispatch(setFilters({
+      search: "",
+      category: "",
+      status: "",
+      sort: "-1"
+    }));
     dispatch(setPagination({ page: 1 }));
   };
 
@@ -64,89 +74,110 @@ const IssueList = () => {
 
   return (
     <OuterContainer>
-    <Container>
-      <Header>
-        <h2>Community Issues</h2>
-        <Button onClick={handleCreateIssue}>
-          <FaPlus /> Report Issue
-        </Button>
-      </Header>
+      <Container>
+        <Header>
+          <h2>Community Issues</h2>
+          <HeaderButtons>
+            <Button 
+              as={Link} 
+              to="/my-issues" 
+              variant="outline"
+            >
+              My Issues
+            </Button>
+            <Button onClick={handleCreateIssue}>
+              <FaPlus /> Report Issue
+            </Button>
+          </HeaderButtons>
+        </Header>
 
-      <Filters>
-        <SearchForm onSubmit={handleSearch}>
-          <Input
-            type="text"
-            placeholder="Search issues..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Button type="submit">
-            <FaSearch />
-          </Button>
-        </SearchForm>
-
-        <FilterGroup>
-          <Select
-            value={filters.category}
-            onChange={(e) => handleFilterChange('category', e.target.value)}
-          >
-            <option value="">All Categories</option>
-             <option value="Road">Road</option>
-            <option value="Water">Water</option>
-            <option value="Sanitation">Sanitation</option>
-            <option value="Electricity">Electricity</option>
-            <option value="Other">Other</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </Select>
-
-          <Select
-            value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
-          >
-            <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Resolved">Resolved</option>
-          </Select>
-
-          <Select
-            value={filters.sort}
-            onChange={(e) => handleFilterChange('sort', e.target.value)}
-          >
-            <option value="-1">Newest First</option>
-            <option value="1">Most Voted</option>
-          </Select>
-        </FilterGroup>
-      </Filters>
-
-      {loading ? (
-        <Loading />
-      ) : issues.length === 0 ? (
-        <EmptyState>
-          <p>No issues found. Be the first to report one!</p>
-        </EmptyState>
-      ) : (
-        <>
-          <IssueGrid>
-            {issues.map((issue) => (
-              <IssueCard key={issue._id} issue={issue} />
-            ))}
-          </IssueGrid>
-
-          <PaginationContainer>
-            <Pagination
-              currentPage={pagination.page}
-              totalPages={Math.ceil(pagination.total / pagination.limit)}
-              onPageChange={handlePageChange}
+        <Filters>
+          <SearchForm onSubmit={handleSearch}>
+            <Input
+              type="text"
+              placeholder="Search issues..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </PaginationContainer>
-        </>
-      )}
-    </Container>
+            <Button type="submit">
+              <FaSearch />
+            </Button>
+          </SearchForm>
+          
+          <FilterGroup>
+            <Select
+              value={filters.category || ""}
+              onChange={(e) => handleFilterChange('category', e.target.value)}
+            >
+              <option value="">All Categories</option>
+              <option value="Road">Road</option>
+              <option value="Water">Water</option>
+              <option value="Sanitation">Sanitation</option>
+              <option value="Electricity">Electricity</option>
+              <option value="Other">Other</option>
+            </Select>
+
+            <Select
+              value={filters.status || ""}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </Select>
+
+            <Select
+              value={filters.sort}
+              onChange={(e) => handleFilterChange('sort', e.target.value)}
+            >
+              <option value="-createdAt">Newest First</option>
+              <option value="-votes">Most Voted</option>
+            </Select>
+          </FilterGroup>
+          
+          <FilterActions>
+            <Button 
+              onClick={handleClearFilters} 
+              variant="outline"
+              disabled={!Object.values(filters).some(Boolean)}
+            >
+              <FaTimes /> Clear Filters
+            </Button>
+          </FilterActions>
+        </Filters>
+
+        {loading ? (
+          <Loading />
+        ) : !issues || issues.length === 0 ? (
+          <EmptyState>
+            <p>No issues found. Be the first to report one!</p>
+          </EmptyState>
+        ) : (
+          <>
+            <IssueGrid>
+              {issues.map((issue) => (
+                <IssueCard 
+                  key={issue._id} 
+                  issue={{
+                    ...issue,
+                    votes: issue.voteCount,
+                    user: issue.author
+                  }} 
+                />
+              ))}
+            </IssueGrid>
+
+            <PaginationContainer>
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+              />
+            </PaginationContainer>
+          </>
+        )}
+      </Container>
     </OuterContainer>
   );
 };
@@ -215,4 +246,91 @@ const EmptyState = styled.div`
   border-radius: ${({ theme }) => theme.radii.md};
 `;
 
+const HeaderButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const FilterActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+`;
+
+
+
 export default IssueList;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {/* {loading ? (
+        <Loading />
+      ) : issues.length === 0 ? (
+        <EmptyState>
+          <p>No issues found. Be the first to report one!</p>
+        </EmptyState>
+      ) : (
+        <>
+          <IssueGrid>
+            {issues.map((issue) => (
+              <IssueCard key={issue._id} issue={issue} />
+            ))}
+          </IssueGrid>
+
+          <PaginationContainer>
+            <Pagination
+              currentPage={pagination.page}
+              totalPages={Math.ceil(pagination.total / pagination.limit)}
+              onPageChange={handlePageChange}
+            />
+          </PaginationContainer>
+        </>
+      )} */}
+
+      {/* <FilterGroup>
+          <Select
+            value={filters.category}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
+          >
+            <option value="">All Categories</option>
+             <option value="Road">Road</option>
+            <option value="Water">Water</option>
+            <option value="Sanitation">Sanitation</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Other">Other</option>
+            {/* {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))} */}
+          {/* </Select>
+
+          <Select
+            value={filters.status}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </Select>
+
+          <Select
+            value={filters.sort}
+            onChange={(e) => handleFilterChange('sort', e.target.value)}
+          >
+            <option value="-1">Newest First</option>
+            <option value="1">Most Voted</option>
+          </Select>
+        </FilterGroup> */} 

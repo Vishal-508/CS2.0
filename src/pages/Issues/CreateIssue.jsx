@@ -1,12 +1,19 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { createIssue } from '../../features/issues/issuesSlice';
-import { toast } from 'react-hot-toast';
-import styled from 'styled-components';
-import { Button, Input, Select, Textarea, Card, Loading } from '../../components/UI';
-import { FaArrowLeft, FaUpload } from 'react-icons/fa';
-import OuterContainer from '../../components/UI/OuterContainer';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { createIssue } from "../../features/issues/issuesSlice";
+import { toast } from "react-hot-toast";
+import styled from "styled-components";
+import {
+  Button,
+  Input,
+  Select,
+  Textarea,
+  Card,
+  Loading,
+} from "../../components/UI";
+import { FaArrowLeft, FaUpload } from "react-icons/fa";
+import OuterContainer from "../../components/UI/OuterContainer";
 
 const CreateIssue = () => {
   const dispatch = useDispatch();
@@ -14,10 +21,12 @@ const CreateIssue = () => {
   const { categories, loading } = useSelector((state) => state.issues);
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    location: '',
+    title: "",
+    description: "",
+    category: "",
+    location: "",
+    latitude: 40.7128, // Default value or empty
+    longitude: -74.006, // Default value or empty
     image: null,
   });
 
@@ -48,55 +57,80 @@ const CreateIssue = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.description || !formData.category || !formData.location) {
-      toast.error('Please fill in all required fields');
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.category ||
+      !formData.location
+    ) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    dispatch(createIssue(formData))
+    // Create the issue data object including coordinates
+    const issueData = {
+      ...formData,
+      latitude: parseFloat(formData.latitude), // Ensure it's a number
+      longitude: parseFloat(formData.longitude), // Ensure it's a number
+    };
+
+    dispatch(createIssue(issueData))
       .unwrap()
       .then(() => {
-        toast.success('Issue created successfully');
-        navigate('/issues');
+        toast.success("Issue created successfully");
+        navigate("/issues");
       })
       .catch((error) => {
-        toast.error(error.message || 'Failed to create issue');
+        toast.error(error.message || "Failed to create issue");
       });
   };
 
-  if (loading && !categories.length) {
+  if (loading) {
     return <Loading />;
   }
 
   return (
     <OuterContainer>
-    <Container>
-      <BackButton onClick={() => navigate('/issues')}>
-        <FaArrowLeft /> Back to Issues
-      </BackButton>
+      <Container>
+        <BackButton onClick={() => navigate("/issues")}>
+          <FaArrowLeft /> Back to Issues
+        </BackButton>
 
-      <FormCard>
-        <h2>Report a New Issue</h2>
-        
-        <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="title"
-            placeholder="Title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
+        <FormCard>
+          <h2>Report a New Issue</h2>
 
-          <Textarea
-            name="description"
-            placeholder="Detailed description of the issue..."
-            value={formData.description}
-            onChange={handleChange}
-            rows="5"
-            required
-          />
+          <Form onSubmit={handleSubmit}>
+            <Input
+              type="text"
+              name="title"
+              placeholder="Title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
 
+            <Textarea
+              name="description"
+              placeholder="Detailed description of the issue..."
+              value={formData.description}
+              onChange={handleChange}
+              rows="5"
+              required
+            />
+            <Select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a category</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
+            </Select>
+            {/* 
           <Select
             name="category"
             value={formData.category}
@@ -109,39 +143,56 @@ const CreateIssue = () => {
                 {category.name}
               </option>
             ))}
-          </Select>
+          </Select> */}
 
-          <Input
-            type="text"
-            name="location"
-            placeholder="Location (e.g., Sector 15, Chandigarh)"
-            value={formData.location}
-            onChange={handleChange}
-            required
-          />
-
-          <ImageUpload>
-            <input
-              type="file"
-              id="image-upload"
-              accept="image/*"
-              onChange={handleImageChange}
-              style={{ display: 'none' }}
+            <Input
+              type="text"
+              name="location"
+              placeholder="Location (e.g., Sector 15, Chandigarh)"
+              value={formData.location}
+              onChange={handleChange}
+              required
             />
-            <label htmlFor="image-upload">
-              <FaUpload /> Upload Image (Optional)
-            </label>
-            {imagePreview && (
-              <ImagePreview src={imagePreview} alt="Preview" />
-            )}
-          </ImageUpload>
+            <Input
+              type="number"
+              name="latitude"
+              placeholder="Latitude"
+              value={formData.latitude}
+              onChange={handleChange}
+              step="any"
+            />
 
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit Issue'}
-          </Button>
-        </Form>
-      </FormCard>
-    </Container>
+            <Input
+              type="number"
+              name="longitude"
+              placeholder="Longitude"
+              value={formData.longitude}
+              onChange={handleChange}
+              step="any"
+            />
+
+            <ImageUpload>
+              <input
+                type="file"
+                id="image-upload"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+              />
+              <label htmlFor="image-upload">
+                <FaUpload /> Upload Image (Optional)
+              </label>
+              {imagePreview && (
+                <ImagePreview src={imagePreview} alt="Preview" />
+              )}
+            </ImageUpload>
+
+            <Button type="submit" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Issue"}
+            </Button>
+          </Form>
+        </FormCard>
+      </Container>
     </OuterContainer>
   );
 };

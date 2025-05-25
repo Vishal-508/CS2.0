@@ -10,15 +10,15 @@ import OuterContainer from '../../components/UI/OuterContainer';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
-    password: '',
-    confirmPassword: '',
+    password: ''
+    
   });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, loading, error } = useSelector((state) => state.auth);
+  const { token, loading, error, registerSuccess } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (token) {
@@ -26,6 +26,13 @@ const Register = () => {
     }
   }, [token, navigate]);
 
+useEffect(() => {
+  if (registerSuccess) {
+    toast.success('Registered successfully!');
+    dispatch(resetRegisterSuccess()); // ✅ reset flag
+    navigate('/login');
+  }
+}, [registerSuccess, navigate, dispatch]);
   useEffect(() => {
     if (error) {
       toast.error(error.message || 'Registration failed');
@@ -41,15 +48,13 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
+ 
     dispatch(registerUser({
-      name: formData.name,
+      username: formData.username,
       email: formData.email,
       password: formData.password,
     }));
+
   };
 
   return (
@@ -61,9 +66,9 @@ const Register = () => {
         <Form onSubmit={handleSubmit}>
           <Input
             type="text"
-            name="name"
+            name="username"
             placeholder="Full Name"
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
             required
           />
@@ -84,15 +89,7 @@ const Register = () => {
             required
             minLength="6"
           />
-          <Input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            minLength="6"
-          />
+        
           <Button type="submit" disabled={loading}>
             {loading ? 'Registering...' : (
               <>

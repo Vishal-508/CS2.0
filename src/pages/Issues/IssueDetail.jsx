@@ -1,31 +1,30 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
-  fetchIssueDetails, 
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import {
+  fetchIssueDetails,
   clearCurrentIssue,
-  deleteIssue
-} from '../../features/issues/issuesSlice';
-import { castVote, checkVote } from '../../features/votes/votesSlice';
-import { toast } from 'react-hot-toast';
-import styled from 'styled-components';
-import { 
-  Button, 
-  Card, 
-  Loading, 
-  StatusBadge 
-} from '../../components/UI';
-import { 
-  FaArrowLeft, 
-  FaThumbsUp, 
-  FaEdit, 
+  deleteIssue,
+} from "../../features/issues/issuesSlice";
+import {
+  castVote,
+  deleteVote,
+  checkVote,
+} from "../../features/votes/votesSlice";
+import { toast } from "react-hot-toast";
+import styled from "styled-components";
+import { Button, Card, Loading, StatusBadge } from "../../components/UI";
+import {
+  FaArrowLeft,
+  FaThumbsUp,
+  FaEdit,
   FaTrash,
   FaUser,
   FaMapMarkerAlt,
-  FaCalendarAlt
-} from 'react-icons/fa';
-import { formatDate } from '../../utils/helpers';
-import OuterContainer from '../../components/UI/OuterContainer';
+  FaCalendarAlt,
+} from "react-icons/fa";
+import { formatDate } from "../../utils/helpers";
+import OuterContainer from "../../components/UI/OuterContainer";
 
 const IssueDetail = () => {
   const { id } = useParams();
@@ -48,24 +47,48 @@ const IssueDetail = () => {
 
   const handleVote = () => {
     if (hasVoted) {
-      toast('You have already voted for this issue');
-      return;
+      dispatch(deleteVote(id))
+        .unwrap()
+        .then(() => {
+          toast.success("Vote removed successfully");
+          dispatch(fetchIssueDetails(id)); // Refresh issue details
+        })
+        .catch((error) => {
+          toast.error(error.message || "Failed to remove vote");
+        });
+    } else {
+      dispatch(castVote(id))
+        .unwrap()
+        .then(() => {
+          toast.success("Vote added successfully");
+          dispatch(fetchIssueDetails(id)); // Refresh issue details
+        })
+        .catch((error) => {
+          toast.error(error.message || "Failed to add vote");
+        });
     }
-    dispatch(castVote(id));
   };
+
+  //   const handleVote = () => {
+  //     if (hasVoted) {
+  //       toast("You have already voted for this issue");
+  //       return;
+  //     }
+  //     dispatch(castVote(id));
+  //   };
 
   const handleEdit = () => {
     navigate(`/issues/edit/${id}`);
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this issue?')) {
+    if (window.confirm("Are you sure you want to delete this issue?")) {
       try {
         await dispatch(deleteIssue(id)).unwrap();
-        toast.success('Issue deleted successfully');
-        navigate('/issues');
+        toast.success("Issue deleted successfully");
+        navigate("/issues");
       } catch (error) {
-        toast.error(error.message || 'Failed to delete issue');
+        toast.error(error.message || "Failed to delete issue");
       }
     }
   };
@@ -74,23 +97,46 @@ const IssueDetail = () => {
     return <Loading />;
   }
 
-  const isOwner = user?._id === currentIssue.user?._id;
-  const canEdit = isOwner && currentIssue.status === 'Pending';
+  const isOwner = user?.id === currentIssue.data.author?._id;
+  console.log("issues", currentIssue.data.author?._id, "user data ", user?.id);
+
+  const canEdit = isOwner && currentIssue.data.status === "Pending";
 
   return (
     <OuterContainer>
-    <Container>
-      <BackButton to="/issues">
-        <FaArrowLeft /> Back to Issues
-      </BackButton>
+      <Container>
+        <BackButton to="/issues">
+          <FaArrowLeft /> Back to Issues
+        </BackButton>
 
-      <DetailCard>
-        <Header>
-          <h2>{currentIssue.title}</h2>
-          <StatusBadge status={currentIssue.status} />
-        </Header>
+        <DetailCard>
+          <Header>
+            <h2>{currentIssue.data.title}</h2>
+            <StatusBadge status={currentIssue.data.status} />
+          </Header>
 
-        <Meta>
+          <Meta>
+            <MetaItem>
+              <FaUser /> Reported by: {currentIssue.data.author?.email}
+            </MetaItem>
+            <MetaItem>
+              Category: {currentIssue.data.category}{" "}
+              {/* Direct string access */}
+            </MetaItem>
+            <MetaItem>
+              <FaMapMarkerAlt /> Location: {currentIssue.data.location}
+            </MetaItem>
+            <MetaItem>
+              <FaCalendarAlt /> Reported on:{" "}
+              {formatDate(currentIssue.data.createdAt)}
+            </MetaItem>
+            <MetaItem>
+              Coordinates: {currentIssue.data.latitude},{" "}
+              {currentIssue.data.longitude}
+            </MetaItem>
+          </Meta>
+
+          {/* <Meta>
           <MetaItem>
             <FaUser /> Reported by: {currentIssue.user?.name}
           </MetaItem>
@@ -103,44 +149,49 @@ const IssueDetail = () => {
           <MetaItem>
             <FaCalendarAlt /> Reported on: {formatDate(currentIssue.createdAt)}
           </MetaItem>
-        </Meta>
+        </Meta> */}
 
-        {currentIssue.image && (
-          <ImageContainer>
-            <img 
-              src={`${import.meta.env.VITE_API_URL}/${currentIssue.image}`} 
-              alt={currentIssue.title} 
-            />
-          </ImageContainer>
-        )}
-
-        <Description>
-          <h3>Description</h3>
-          <p>{currentIssue.description}</p>
-        </Description>
-
-        <Actions>
-          <VoteButton 
-            onClick={handleVote} 
-            disabled={hasVoted}
-            voted={hasVoted}
-          >
-            <FaThumbsUp /> {hasVoted ? 'Voted' : 'Vote'} ({currentIssue.votes || 0})
-          </VoteButton>
-
-          {canEdit && (
-            <>
-              <Button onClick={handleEdit}>
-                <FaEdit /> Edit
-              </Button>
-              <Button variant="danger" onClick={handleDelete}>
-                <FaTrash /> Delete
-              </Button>
-            </>
+          {currentIssue.imageUrl && (
+            <ImageContainer>
+              <img
+                src={currentIssue.data.imageUrl}
+                alt={currentIssue.data.title}
+              />
+            </ImageContainer>
           )}
-        </Actions>
-      </DetailCard>
-    </Container>
+
+          <Description>
+            <h3>Description</h3>
+            <p>{currentIssue.data.description}</p>
+          </Description>
+
+          <Actions>
+            <VoteButton onClick={handleVote} voted={hasVoted}>
+              <FaThumbsUp /> {hasVoted ? "Remove Vote" : "Vote"} (
+              {currentIssue.data.voteCount || 0})
+            </VoteButton>
+            {/* <VoteButton
+              onClick={handleVote}
+              disabled={hasVoted}
+              voted={hasVoted}
+            >
+              <FaThumbsUp /> {hasVoted ? "Voted" : "Vote"} (
+              {currentIssue.data.voteCount || 0})
+            </VoteButton> */}
+
+            {canEdit && (
+              <>
+                <Button onClick={handleEdit}>
+                  <FaEdit /> Edit
+                </Button>
+                <Button variant="danger" onClick={handleDelete}>
+                  <FaTrash /> Delete
+                </Button>
+              </>
+            )}
+          </Actions>
+        </DetailCard>
+      </Container>
     </OuterContainer>
   );
 };
@@ -235,6 +286,7 @@ const Actions = styled.div`
   flex-wrap: wrap;
 `;
 
+
 const VoteButton = styled(Button)`
   background-color: ${({ voted, theme }) => 
     voted ? theme.colors.success : theme.colors.primary};
@@ -244,5 +296,14 @@ const VoteButton = styled(Button)`
       voted ? theme.colors.successDark : theme.colors.primaryDark};
   }
 `;
+// const VoteButton = styled(Button)`
+//   background-color: ${({ voted, theme }) =>
+//     voted ? theme.colors.success : theme.colors.primary};
+
+//   &:hover:not(:disabled) {
+//     background-color: ${({ voted, theme }) =>
+//       voted ? theme.colors.successDark : theme.colors.primaryDark};
+//   }
+// `;
 
 export default IssueDetail;
