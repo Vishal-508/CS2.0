@@ -58,9 +58,9 @@ const App = () => {
             } />
             <Route path=":id" element={<IssueDetail />} />
             <Route path="my-issues" element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <MyIssues />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             } />
           </Route>
 

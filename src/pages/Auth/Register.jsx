@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { registerUser } from '../../features/auth/authSlice';
+import { registerUser, resetRegisterSuccess } from '../../features/auth/authSlice';
 import { toast } from 'react-hot-toast';
 import styled from 'styled-components';
 import { Button, Input, Card, Form, Logo } from '../../components/UI';
@@ -13,12 +13,11 @@ const Register = () => {
     username: '',
     email: '',
     password: ''
-    
   });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, loading, error, registerSuccess } = useSelector((state) => state.auth);
+  const { token, status, error, registerSuccess } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (token) {
@@ -26,18 +25,16 @@ const Register = () => {
     }
   }, [token, navigate]);
 
-useEffect(() => {
-  if (registerSuccess) {
-    toast.success('Registered successfully!');
-    dispatch(resetRegisterSuccess()); // ✅ reset flag
-    navigate('/login');
-  }
-}, [registerSuccess, navigate, dispatch]);
   useEffect(() => {
     if (error) {
       toast.error(error.message || 'Registration failed');
     }
-  }, [error]);
+    if (registerSuccess) {
+      toast.success('Registration successful! Please login');
+      dispatch(resetRegisterSuccess()); // Reset the success state
+      navigate('/login');
+    }
+  }, [error, registerSuccess, navigate, dispatch]);
 
   const handleChange = (e) => {
     setFormData({
@@ -48,61 +45,59 @@ useEffect(() => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
- 
     dispatch(registerUser({
       username: formData.username,
       email: formData.email,
       password: formData.password,
     }));
-
   };
 
   return (
     <OuterContainer>
-    <AuthContainer>
-      <AuthCard>
-        <Logo />
-        <h2>Create an Account</h2>
-        <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="username"
-            placeholder="Full Name"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            minLength="6"
-          />
-        
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Registering...' : (
-              <>
-                <FaUserPlus /> Register
-              </>
-            )}
-          </Button>
-        </Form>
-        <AuthFooter>
-          <p>Already have an account? <Link to="/login">Login</Link></p>
-        </AuthFooter>
-      </AuthCard>
-    </AuthContainer>
+      <AuthContainer>
+        <AuthCard>
+          <Logo />
+          <h2>Create an Account</h2>
+          <Form onSubmit={handleSubmit}>
+            <Input
+              type="text"
+              name="username"
+              placeholder="Full Name"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              minLength="6"
+            />
+          
+            <Button type="submit" disabled={status === 'loading'}>
+              {status === 'loading' ? 'Registering...' : (
+                <>
+                  <FaUserPlus /> Register
+                </>
+              )}
+            </Button>
+          </Form>
+          <AuthFooter>
+            <p>Already have an account? <Link to="/login">Login</Link></p>
+          </AuthFooter>
+        </AuthCard>
+      </AuthContainer>
     </OuterContainer>
   );
 };

@@ -59,16 +59,16 @@ const authSlice = createSlice({
     token: localStorage.getItem('token') || null,
     status: 'idle',
     error: null,
-    registerSuccess: false,
+    registerSuccess: false, 
   },
-reducers: {
-  clearError: (state) => {
-    state.error = null;
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+      resetRegisterSuccess: (state) => { // Add this reducer
+      state.registerSuccess = false;
+    },
   },
-  resetRegisterSuccess: (state) => {
-    state.registerSuccess = false;
-  },
-},
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
@@ -79,12 +79,12 @@ reducers: {
         state.status = 'succeeded';
         state.user = action.payload.user;
         state.token = action.payload.token;
-         state.registerSuccess = true; 
+        state.registerSuccess = true;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-        state.registerSuccess = false;
+          state.registerSuccess = false;
       })
       .addCase(loginUser.pending, (state) => {
         state.status = 'loading';
@@ -119,6 +119,5 @@ reducers: {
   },
 });
 
-export const { clearError , resetRegisterSuccess} = authSlice.actions;
-
+export const { clearError, resetRegisterSuccess  } = authSlice.actions;
 export default authSlice.reducer;
