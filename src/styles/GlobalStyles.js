@@ -19,6 +19,29 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1.5;
     color: ${({ theme }) => theme.colors.text};
     background-color: ${({ theme }) => theme.colors.light};
+
+      &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // scrollbar-width: none;
+  // -ms-overflow-style: none;
+  }
+
+      html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* 🔥 Prevent horizontal scroll */
+    overflow-y: auto;   /* Allow vertical scroll only if content exceeds */
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *, *::before, *::after {
+    box-sizing: inherit;
   }
 
   a {

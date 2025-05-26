@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { loginUser } from '../../features/auth/authSlice';
-import { toast } from 'react-hot-toast';
+import { loginUser, clearError } from '../../features/auth/authSlice';
+// import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { Button, Input, Card, Form, Logo } from '../../components/UI';
 import { FaSignInAlt } from 'react-icons/fa';
@@ -17,7 +18,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, loading, error } = useSelector((state) => state.auth);
+  const { token, loading } = useSelector((state) => state.auth);
 
   const from = location.state?.from?.pathname || '/';
 
@@ -27,12 +28,6 @@ const Login = () => {
     }
   }, [token, navigate, from]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message || 'Login failed');
-    }
-  }, [error]);
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -40,51 +35,63 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(loginUser(formData));
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    const result = await dispatch(loginUser(formData)).unwrap();
+  } catch (error) {
+    toast.error(error.message || 'Invalid credentials', {
+      position: "top-center",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  }
+};
 
   return (
     <OuterContainer>
-    <AuthContainer>
-      <AuthCard>
-        <Logo />
-        <h2>Login to CivicSync</h2>
-        <Form onSubmit={handleSubmit}>
-          <Input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : (
-              <>
-                <FaSignInAlt /> Login
-              </>
-            )}
-          </Button>
-        </Form>
-        <AuthFooter>
-          <p>Don't have an account? <Link to="/register">Register</Link></p>
-        </AuthFooter>
-      </AuthCard>
-    </AuthContainer>
+      <AuthContainer>
+        <AuthCard>
+          <Logo />
+          <h2>Login to CivicSync</h2>
+          <Form onSubmit={handleSubmit}>
+            <Input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : (
+                <>
+                  <FaSignInAlt /> Login
+                </>
+              )}
+            </Button>
+          </Form>
+          <AuthFooter>
+            <p>Don't have an account? <Link to="/register">Register</Link></p>
+          </AuthFooter>
+        </AuthCard>
+      </AuthContainer>
     </OuterContainer>
   );
 };
-
 const AuthContainer = styled.div`
   display: flex;
   justify-content: center;

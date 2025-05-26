@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createIssue } from "../../features/issues/issuesSlice";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
+import { toast } from 'react-toastify';
+
 import styled from "styled-components";
 import {
   Button,
@@ -25,8 +27,8 @@ const CreateIssue = () => {
     description: "",
     category: "",
     location: "",
-    latitude: 40.7128, // Default value or empty
-    longitude: -74.006, // Default value or empty
+    latitude: null, // Default value or empty
+    longitude: null, // Default value or empty
     image: null,
   });
 
@@ -90,7 +92,7 @@ const CreateIssue = () => {
   }
 
   return (
-    <OuterContainer>
+   
       <Container>
         <BackButton onClick={() => navigate("/issues")}>
           <FaArrowLeft /> Back to Issues
@@ -193,7 +195,7 @@ const CreateIssue = () => {
           </Form>
         </FormCard>
       </Container>
-    </OuterContainer>
+
   );
 };
 

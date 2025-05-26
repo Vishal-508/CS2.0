@@ -103,7 +103,7 @@ const IssueDetail = () => {
   const canEdit = isOwner && currentIssue.data.status === "Pending";
 
   return (
-    <OuterContainer>
+   
       <Container>
         <BackButton to="/issues">
           <FaArrowLeft /> Back to Issues
@@ -192,7 +192,7 @@ const IssueDetail = () => {
           </Actions>
         </DetailCard>
       </Container>
-    </OuterContainer>
+
   );
 };
 

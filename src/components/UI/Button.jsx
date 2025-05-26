@@ -4,6 +4,9 @@ const Button = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  // min-width:120px;
+  box-sizing: boder-box;
+  text-wrap: nowrap;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: ${({ theme, variant }) => 
@@ -36,6 +39,11 @@ const Button = styled.button`
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
   `}
+
+    @media (max-width: 650px) {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
 `;
 
 export default Button;

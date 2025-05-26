@@ -29,7 +29,12 @@ const Navbar = () => {
           <NavItem to="/issues">
             <FaClipboardList /> Issues
           </NavItem>
-           {/* <NavItem to="/my-issues">  
+           {token && (
+            <NavItem to="/myissue">
+              <FaChartBar /> My Issues 
+            </NavItem>
+          )}
+           {/* <NavItem to="/myissue">  
             <FaClipboardList /> My Issues  
           </NavItem>   */}
           <NavItem to="/map">

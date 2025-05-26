@@ -115,7 +115,7 @@ console.log("current iseeu ",currentIssue)
 
 
   return (
-    <OuterContainer>
+   
     <Container>
       <BackButton onClick={() => navigate(`/issues/${id}`)}>
         <FaArrowLeft /> Back to Issue
@@ -194,7 +194,7 @@ console.log("current iseeu ",currentIssue)
         </Form>
       </FormCard>
     </Container>
-    </OuterContainer>
+
   );
 };
 

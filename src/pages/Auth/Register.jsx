@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser, resetRegisterSuccess } from '../../features/auth/authSlice';
-import { toast } from 'react-hot-toast';
+// import { toast } from 'react-hot-toast';
 import styled from 'styled-components';
 import { Button, Input, Card, Form, Logo } from '../../components/UI';
 import { FaUserPlus } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import OuterContainer from '../../components/UI/OuterContainer';
 
 const Register = () => {
@@ -25,16 +26,32 @@ const Register = () => {
     }
   }, [token, navigate]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message || 'Registration failed');
-    }
-    if (registerSuccess) {
-      toast.success('Registration successful! Please login');
-      dispatch(resetRegisterSuccess()); // Reset the success state
-      navigate('/login');
-    }
-  }, [error, registerSuccess, navigate, dispatch]);
+ useEffect(() => {
+  if (error) {
+    toast.error(error.message || 'Registration failed', {
+      position: "top-center",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  }
+  if (registerSuccess) {
+    toast.success('Registration successful! Please login', {
+      position: "top-center",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+    dispatch(resetRegisterSuccess());
+    navigate('/login');
+  }
+}, [error, registerSuccess, navigate, dispatch]);
 
   const handleChange = (e) => {
     setFormData({
@@ -53,7 +70,7 @@ const Register = () => {
   };
 
   return (
-    <OuterContainer>
+
       <AuthContainer>
         <AuthCard>
           <Logo />
@@ -98,7 +115,7 @@ const Register = () => {
           </AuthFooter>
         </AuthCard>
       </AuthContainer>
-    </OuterContainer>
+    
   );
 };
 

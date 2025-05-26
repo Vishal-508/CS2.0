@@ -33,6 +33,7 @@ const FooterContainer = styled.footer`
   background: ${({ theme }) => theme.colors.dark};
   color: white;
   padding: 2rem 0;
+ 
 `;
 
 const FooterContent = styled.div`

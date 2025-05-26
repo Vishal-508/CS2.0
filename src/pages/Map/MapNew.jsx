@@ -70,7 +70,7 @@ function MapNew() {
     }, [dispatch, pagination.page, filters]);
 
 
- 
+ console.log("Map wala issues",issues)
   return (
     <OuterContainer>
     <Fragment>

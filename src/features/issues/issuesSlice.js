@@ -175,19 +175,20 @@ const issuesSlice = createSlice({
     userIssues: [],
     currentIssue: null,
     // categories: [],
-    categories: [ // Add hardcoded categories
-    { _id: "Road", name: "Road" },
-    { _id: "Water", name: "Water" },
-    { _id: "Sanitation", name: "Sanitation" },
-    { _id: "Electricity", name: "Electricity" },
-    { _id: "Other", name: "Other" }
-  ],
+    categories: [
+      // Add hardcoded categories
+      { _id: "Road", name: "Road" },
+      { _id: "Water", name: "Water" },
+      { _id: "Sanitation", name: "Sanitation" },
+      { _id: "Electricity", name: "Electricity" },
+      { _id: "Other", name: "Other" },
+    ],
     // statuses: [],
     pagination: {
       page: 1,
       limit: 10,
-      total: 0,
-      totalPages: 1,
+      total: null,
+      totalPages: null,
     },
     filters: {
       search: "",
@@ -219,9 +220,9 @@ const issuesSlice = createSlice({
         state.issues = action.payload.data.issues; // Access the nested issues array
         state.pagination = {
           page: action.payload.data.page,
-          limit: state.pagination.limit, // Keep the existing limit
+          limit: state.pagination.limit, // Keep existing limit
           total: action.payload.data.total,
-          totalPages: Math.ceil(action.payload.total / state.pagination.limit) 
+          totalPages: action.payload.data.totalPages,
         };
       })
       //   .addCase(fetchIssues.fulfilled, (state, action) => {
