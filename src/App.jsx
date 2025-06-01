@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { getCurrentUser } from "./features/auth/authSlice";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { ThemeProvider } from "styled-components";
 import GlobalStyles from "./styles/GlobalStyles";
 import theme from "./styles/theme";
@@ -36,33 +36,32 @@ const App = () => {
     }
   }, [dispatch, token]);
 
-
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
       <ToastContainer
-    position="top-center"
-    autoClose={4000}
-    hideProgressBar={false}
-    newestOnTop={false}
-    closeOnClick
-    rtl={false}
-    pauseOnFocusLoss
-    draggable
-    pauseOnHover
-    theme="colored"
-  />
+        position="top-center"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           {/* <Route path="myissue" element={<MyIssues />} /> */}
           <Route path="register" element={<Register />} />
-       <Route
+          <Route
             path="myissue"
             element={
               <ProtectedRoute>
-                <MyIssues /> 
+                <MyIssues />
               </ProtectedRoute>
             }
           />
@@ -89,7 +88,7 @@ const App = () => {
           </Route>
 
           {/* <Route path="map" element={<MapNew />} /> */}
-           <Route path="map" element={<MapView />} />
+          <Route path="map" element={<MapView />} />
 
           <Route
             path="analytics"
